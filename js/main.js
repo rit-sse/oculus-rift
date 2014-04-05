@@ -4,11 +4,20 @@ Physijs.scripts.ammo = '/js/ammo.js';
 
 var OculusLeapLift = function() {
   this.initScene();
+
+  var self = this;
+  var handleResize = function() {
+    self.camera.aspect = window.innerWidth / window.innerHeight;
+    self.camera.updateProjectionMatrix();
+
+    self.effect.setSize( window.innerWidth, window.innerHeight );
+  }
+  window.addEventListener( 'resize', handleResize, false );
 };
 
 OculusLeapLift.prototype.render = function() {
   this.scene.simulate(); // run physics
-  this.renderer.render( this.scene, this.camera); // render the scene
+  this.effect.render( this.scene, this.camera );
   this.requestAnimationFrame();
 };
 
@@ -16,19 +25,24 @@ OculusLeapLift.prototype.requestAnimationFrame = function() {
   var self = this;      
   requestAnimationFrame( function() {
     self.render();
-  } );
+  });
 };
 
 OculusLeapLift.prototype.initScene = function() {
-  this.renderer = new THREE.WebGLRenderer({ antialias: true });
-  this.renderer.setClearColor(0xeeeeff);
+  this.renderer = new THREE.WebGLRenderer({
+    devicePixelRatio: 1,
+    alpha: false,
+    clearColor: 0xffffff,
+    antialias: true
+  });
+  this.renderer.setClearColor(0xffffff);
   this.renderer.setSize( window.innerWidth, window.innerHeight );
-  document.querySelector( 'body' ).appendChild( this.renderer.domElement );
 
   this.scene = new Physijs.Scene();
 
+
   this.camera = new THREE.PerspectiveCamera(
-    35,
+    75,
     window.innerWidth / window.innerHeight,
     1,
     1000
@@ -36,6 +50,8 @@ OculusLeapLift.prototype.initScene = function() {
   this.camera.position.set( 60, 50, 60 );
   this.camera.lookAt( this.scene.position );
   this.scene.add( this.camera );
+
+  this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 
   // Box
   this.box = new Physijs.BoxMesh(
@@ -91,9 +107,31 @@ OculusLeapLift.prototype.initScene = function() {
   dirLight.shadowCameraFar = 3500;
   dirLight.shadowBias = -0.0001;
   dirLight.shadowDarkness = 0.35;
-  
+
   this.renderer.shadowMapEnabled = true;
   this.renderer.shadowMapSoft = true;
+  this.renderer.sortObjects = false;
+
+  this.effect = new THREE.OculusRiftEffect(this.renderer);
+
+  // Right Oculus Parameters are yet to be determined
+  this.effect.separation = 20;
+  this.effect.distortion = 0.1;
+  this.effect.fov = 110;
+
+  /*
+  this.controls = new THREE.OculusRiftControls( camera );
+  scene.add( this.controls.getObject() );*/
+
+  // Poll VR, if it's ready.
+  /*var polled = vr.pollState(vrstate);
+  controls.update( Date.now() - time, polled ? vrstate : null );*/
+
+  this.effect.render( this.scene, this.camera );
+
+  //time = Date.now();  
+
+  document.querySelector( 'body' ).appendChild( this.renderer.domElement );
 
   this.requestAnimationFrame();
 }
