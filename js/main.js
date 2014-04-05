@@ -11,12 +11,16 @@ var OculusLeapLift = function() {
     self.camera.updateProjectionMatrix();
 
     self.effect.setSize( window.innerWidth, window.innerHeight );
-  }
+  };
   window.addEventListener( 'resize', handleResize, false );
 };
 
 OculusLeapLift.prototype.render = function() {
   this.scene.simulate(); // run physics
+  
+  var polled = vr.pollState(this.vrstate);
+  this.controls.update( Date.now() - this.time, polled ? this.vrstate : null );
+  
   this.effect.render( this.scene, this.camera );
   this.requestAnimationFrame();
 };
@@ -29,6 +33,7 @@ OculusLeapLift.prototype.requestAnimationFrame = function() {
 };
 
 OculusLeapLift.prototype.initScene = function() {
+  this.time = Date.now();
   this.renderer = new THREE.WebGLRenderer({
     devicePixelRatio: 1,
     alpha: false,
@@ -119,22 +124,24 @@ OculusLeapLift.prototype.initScene = function() {
   this.effect.distortion = 0.1;
   this.effect.fov = 110;
 
-  /*
-  this.controls = new THREE.OculusRiftControls( camera );
-  scene.add( this.controls.getObject() );*/
+  
+  this.controls = new THREE.OculusRiftControls( this.camera );
+  this.scene.add( this.controls.getObject() );
 
+  this.vrstate = new vr.State();
+  
   // Poll VR, if it's ready.
-  /*var polled = vr.pollState(vrstate);
-  controls.update( Date.now() - time, polled ? vrstate : null );*/
+  var polled = vr.pollState(this.vrstate);
+  this.controls.update( Date.now() - this.time, polled ? this.vrstate : null );
 
   this.effect.render( this.scene, this.camera );
 
-  //time = Date.now();  
+  this.time = Date.now();  
 
   document.querySelector( 'body' ).appendChild( this.renderer.domElement );
 
   this.requestAnimationFrame();
-}
+};
 
 document.addEventListener('DOMContentLoaded', function() {
   new OculusLeapLift();
