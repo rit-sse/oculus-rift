@@ -1339,6 +1339,9 @@ reportConstraints = function() {
 		if ( _constraints.hasOwnProperty( index ) ) {
 			constraint = _constraints[index];
 			offset_body = constraint.getRigidBodyA();
+          for (var k in constraint) {
+            console.log(k);
+          }
 			transform = constraint.getFrameOffsetA(); 
 			origin = transform.getOrigin();
 

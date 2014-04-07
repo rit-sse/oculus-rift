@@ -25,6 +25,11 @@ OculusLeapLift.prototype.render = function() {
   this.requestAnimationFrame();
 };
 
+var origin = new THREE.Vector3(0,0,0);
+OculusLeapLift.prototype.puntBox = function(vec) {
+  this.box.applyCentralImpulse(vec);
+};
+
 OculusLeapLift.prototype.requestAnimationFrame = function() {
   var self = this;      
   requestAnimationFrame( function() {
@@ -71,17 +76,13 @@ OculusLeapLift.prototype.initScene = function() {
 
   this.floor = new Physijs.BoxMesh(
     new THREE.CubeGeometry( 1000, 1, 1000 ),
-    new THREE.MeshPhongMaterial({ color: 0x666666 })
+    new THREE.MeshPhongMaterial({ color: 0x666666 }),
+    0 //0 mass, ground.
   );
   this.floor.receiveShadow = true;
   this.scene.add( this.floor );
 
-  var constraint = new Physijs.DOFConstraint(
-    this.floor, // First object to be constrained
-    new THREE.Vector3( 0, 0, 0 ) // point in the scene to apply the constraint
-  );
-  this.scene.addConstraint( constraint );
-  constraint.appliedImpulse = 0; //Simulated PointConstraint
+  this.scene.setGravity(new THREE.Vector3(0,-1,0));
 
 
   //Lighting
@@ -144,5 +145,5 @@ OculusLeapLift.prototype.initScene = function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  new OculusLeapLift();
+  OLL = new OculusLeapLift();
 });
