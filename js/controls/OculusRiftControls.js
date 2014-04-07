@@ -169,6 +169,7 @@ THREE.OculusRiftControls = function ( camera ) {
 					vrstate.hmd.rotation[1],
 					vrstate.hmd.rotation[2],
 					vrstate.hmd.rotation[3]);
+            camera.quaternion = rotation;
             angles.setFromQuaternion(rotation.normalize(), 'XYZ');
 			rotation.setFromEuler(angles);
 			rotation.normalize();

@@ -1,6 +1,6 @@
 
-Physijs.scripts.worker = '/js/physijs_worker.js';
-Physijs.scripts.ammo = '/js/ammo.js';
+Physijs.scripts.worker = './js/physijs_worker.js';
+Physijs.scripts.ammo = './ammo.js';
 
 var OculusLeapLift = function() {
   this.initScene();
@@ -82,7 +82,7 @@ OculusLeapLift.prototype.initScene = function() {
   this.floor.receiveShadow = true;
   this.scene.add( this.floor );
 
-  this.scene.setGravity(new THREE.Vector3(0,-1,0));
+  this.scene.setGravity(new THREE.Vector3(0,-10,0));
 
 
   //Lighting
@@ -144,6 +144,7 @@ OculusLeapLift.prototype.initScene = function() {
   this.requestAnimationFrame();
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+vr.load(function(err) {
+  console.log(err);
   OLL = new OculusLeapLift();
 });
