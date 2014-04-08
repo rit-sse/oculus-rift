@@ -20,6 +20,7 @@ OculusLeapLift.prototype.render = function() {
   
   var polled = vr.pollState(this.vrstate);
   this.controls.update( Date.now() - this.time, polled ? this.vrstate : null );
+  this.time = Date.now();
   
   this.effect.render( this.scene, this.camera );
   this.requestAnimationFrame();
@@ -59,7 +60,7 @@ OculusLeapLift.prototype.initScene = function() {
   );
   this.camera.position.set( 60, 50, 60 );
   this.camera.lookAt( this.scene.position );
-  this.scene.add( this.camera );
+  //this.scene.add( this.camera );
 
   this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 

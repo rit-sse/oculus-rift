@@ -23,6 +23,7 @@ THREE.OculusRiftControls = function ( camera ) {
 
 	var moveObject = new THREE.Object3D();
 	moveObject.position.y = 10;
+    moveObject.position.z = 10;
 	moveObject.add( camera );
 
 	var moveForward = false;
@@ -33,7 +34,7 @@ THREE.OculusRiftControls = function ( camera ) {
 	var isOnObject = false;
 	var canJump = false;
 
-	var velocity = new THREE.Vector3();
+	var velocity = new THREE.Vector3(0,0,0);
 
 	var PI_2 = Math.PI / 2;
 
@@ -147,7 +148,7 @@ THREE.OculusRiftControls = function ( camera ) {
 		velocity.x += ( - velocity.x ) * 0.08 * delta;
 		velocity.z += ( - velocity.z ) * 0.08 * delta;
 
-		velocity.y -= 0.10 * delta;
+		//velocity.y -= 0.10 * delta;
 
 		if ( moveForward ) velocity.z -= this.moveSpeed * delta;
 		if ( moveBackward ) velocity.z += this.moveSpeed * delta;
@@ -161,24 +162,19 @@ THREE.OculusRiftControls = function ( camera ) {
 
 		}
 
-		var rotation = new THREE.Quaternion();
-		var angles = new THREE.Euler();
+		
 		if (vrstate) {
-			rotation.set(
+            var rotation = new THREE.Quaternion(
 					vrstate.hmd.rotation[0],
 					vrstate.hmd.rotation[1],
 					vrstate.hmd.rotation[2],
 					vrstate.hmd.rotation[3]);
-            camera.quaternion = rotation;
-            angles.setFromQuaternion(rotation.normalize(), 'XYZ');
-			rotation.setFromEuler(angles);
-			rotation.normalize();
-			// velocity.applyQuaternion(rotation);
+            moveObject.quaternion = rotation;
 		}
 
-		moveObject.translateX( velocity.x );
-		moveObject.translateY( velocity.y );
-		moveObject.translateZ( velocity.z );
+		moveObject.position.x += ( velocity.x );
+		moveObject.position.y += ( velocity.y );
+		moveObject.position.z += ( velocity.z );
 
 		if ( moveObject.position.y < 10 ) {
 
@@ -188,6 +184,9 @@ THREE.OculusRiftControls = function ( camera ) {
 			canJump = true;
 
 		}
+      
+      camera.position = moveObject.position;
+      camera.quaternion = moveObject.quaternion;
 
 	};
 
