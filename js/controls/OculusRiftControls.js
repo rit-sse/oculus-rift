@@ -21,7 +21,9 @@ THREE.OculusRiftControls = function ( camera ) {
 
   var scope = this;
 
-  var moveObject = new THREE.Object3D();
+  var moveObject = new Physijs.BoxMesh(
+    new THREE.CubeGeometry(5,10,5)
+  );
   moveObject.position.y = 10;
   moveObject.position.z = 10;
   moveObject.add( camera );
@@ -104,6 +106,9 @@ THREE.OculusRiftControls = function ( camera ) {
   };
 
   this.update = function ( delta, vrstate ) {
+    
+    camera.position = moveObject.position;
+    camera.quaternion = moveObject.quaternion;
 
     //if ( scope.enabled === false ) return;
 
@@ -130,14 +135,13 @@ THREE.OculusRiftControls = function ( camera ) {
       moveObject.quaternion = rotation;
       vel.applyQuaternion(rotation);
 
-
       moveObject.position.x += ( vel.x );
       moveObject.position.y += ( vel.y );
       moveObject.position.z += ( vel.z );
     }
-
-    camera.position = moveObject.position;
-    camera.quaternion = moveObject.quaternion;
+    
+    moveObject.__dirtyPosition = true;
+    moveObject.__dirtyRotation = true;
 
   };
 
