@@ -39,6 +39,7 @@ OculusLeapLift.prototype.requestAnimationFrame = function() {
 };
 
 OculusLeapLift.prototype.initScene = function() {
+  var self = this;
   this.time = Date.now();
   this.renderer = new THREE.WebGLRenderer({
     devicePixelRatio: 1,
@@ -65,14 +66,24 @@ OculusLeapLift.prototype.initScene = function() {
   this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 
   // Box
-  this.box = new Physijs.BoxMesh(
-    new THREE.CubeGeometry( 5, 5, 5 ),
+  this.box = new Physijs.SphereMesh(
+    new THREE.SphereGeometry( 2, 10 ),
     new THREE.MeshPhongMaterial({ color: 0x888888 })
   );
   this.scene.add( this.box );
   this.box.castShadow = true;
   this.box.position.set(0,20,0);
   this.box.__dirtyPosition = true;
+  this.box.addEventListener('collision', function(otherthing, linvel, angvel) {
+    if (otherthing===self.target) {
+      self.box.position.set(0,20,0);
+      self.controls.getObject().position.set(0,10,10);
+      self.box.setLinearVelocity(new THREE.Vector3(0,0,0));
+      self.box.setAngularVelocity(new THREE.Vector3(0,0,0));
+      self.controls.getObject().__dirtyPosition = true;
+      self.box.__dirtyPosition = true;
+    }
+  });
 
 
   this.floor = new Physijs.BoxMesh(
@@ -82,6 +93,17 @@ OculusLeapLift.prototype.initScene = function() {
   );
   this.floor.receiveShadow = true;
   this.scene.add( this.floor );
+  
+  this.target = new Physijs.BoxMesh(
+    new THREE.CubeGeometry(10,10,1),
+    new THREE.MeshPhongMaterial({ color: 0xfe34ac }),
+    0 //0 mass, ground.
+  );
+  this.target.castShadow = true;
+  this.target.receiveShadow = true;
+  this.scene.add(this.target);
+  this.target.position = new THREE.Vector3(0,5,-10);
+  this.target.__dirtyPosition = true;
 
   this.scene.setGravity(new THREE.Vector3(0,-10,0));
 

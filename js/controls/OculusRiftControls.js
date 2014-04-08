@@ -106,7 +106,7 @@ THREE.OculusRiftControls = function ( camera ) {
   };
 
   this.update = function ( delta, vrstate ) {
-    
+
     camera.position = moveObject.position;
     camera.quaternion = moveObject.quaternion;
 
@@ -125,7 +125,7 @@ THREE.OculusRiftControls = function ( camera ) {
 
 
 
-    if (vrstate) {
+    if (vrstate && (vrstate.hmd.present)) {
       var vel= velocity.clone();
       var rotation = new THREE.Quaternion(
         vrstate.hmd.rotation[0],
@@ -133,13 +133,19 @@ THREE.OculusRiftControls = function ( camera ) {
         vrstate.hmd.rotation[2],
         vrstate.hmd.rotation[3]);
       moveObject.quaternion = rotation;
-      vel.applyQuaternion(rotation);
+
+      vel.applyQuaternion(moveObject.quaternion);
 
       moveObject.position.x += ( vel.x );
       moveObject.position.y += ( vel.y );
       moveObject.position.z += ( vel.z );
+    } else {
+
+      moveObject.position.x += ( velocity.x );
+      moveObject.position.y += ( velocity.y );
+      moveObject.position.z += ( velocity.z );
     }
-    
+
     moveObject.__dirtyPosition = true;
     moveObject.__dirtyRotation = true;
 
