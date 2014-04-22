@@ -164,6 +164,12 @@ OculusLeapLift.prototype.initScene = function() {
 
   document.querySelector( 'body' ).appendChild( this.renderer.domElement );
 
+  Entity.setWorld(this.scene);
+  
+  var teapot = new Entity('models/teapot.obj', 50);
+  teapot.setPos(new THREE.Vector3(0,25,-5));
+  teapot.setRotation((new THREE.Quaternion(1,0,12,6)).normalize());
+  
   this.requestAnimationFrame();
 };
 

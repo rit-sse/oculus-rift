@@ -5,22 +5,29 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
 (function() {
   var Entity = function(model, mass) {
     var self = this;
-    Eventable.call(this); //Give this the abilty to emit events
     if (model) this.setModel(model);
-    if (mass && mass>0) this.setMass(mass);
+    this.setMass(mass || 0);
   };
+  
+  if (!String.prototype.endsWith) { //Polyfill
+    console.log('Polyfill for endsWith enabled');
+    String.prototype.endsWith = function(subs) {
+      return (this.indexOf(subs)>-1) && (this.indexOf(subs)===(this.length-subs.length));
+    };
+  }
   
   Entity.prototype.setModel = function(path, cb) {
     var self = this;
     var loader;
     if (path.endsWith('.js') || path.endsWith('.json')) {
-      loader = new THREE.JSONLoader(); 
-    } else if (path.endWith('.obj')) {
+      loader = new THREE.JSONLoader(); //Will error if loader isn't defined
+    } else if (path.endsWith('.obj')) {
       loader = new THREE.OBJLoader();
-    } else if (path.endWith('.dae')) {
+    } else if (path.endsWith('.dae')) {
       loader = new THREE.ColladaLoader();
     }
-    loader.options.convertUpAxis = true; 
+    if (loader.options)
+      loader.options.convertUpAxis = true; 
     //Most models probably don't use the three.js coordinate system, some might, though. Balance of probabilities.
     
     loader.load(path, function(geometry, mats) {
@@ -30,24 +37,35 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   };
   
   Entity.prototype.setGeometry = function(geom, mats) {
-	var facemat = new THREE.MeshFaceMaterial( mats[0] );
+    var facemat = null;
+    if (mats && mats.length>0) {
+      facemat = new THREE.MeshFaceMaterial( mats[0] );
+    } else {
+      facemat = new THREE.MeshLambertMaterial({ color: 0xdedede });
+    }
     
+    var tGeom = geom.children[0].geometry; //Need to check if there's a situation where this is incorrect to assume
     if (this._physobj) {
       var pos = this.getPos();
       var rot = this.getRotation();
       this._physobj.dispose();
-      this._physobj = new Physijs.ConcaveMesh(geom, facemat);
+      this._physobj = new Physijs.ConcaveMesh(tGeom, facemat);
       this.addToWorld();
       this.setPos(pos);
       this.setRotation(rot);
     } else {
-      this._physobj = new Physijs.ConcaveMesh(geom, facemat); //Assume worst case for phys meshes
+      this._physobj = new Physijs.ConcaveMesh(tGeom, facemat); //Assume worst case for phys meshes
       this.addToWorld();
+      this.setPos(this.pos || new THREE.Vector3());
+      this.setRotation(this.rot || new THREE.Quaternion());
     }
+    this._physobj.mass = this.mass;
+    this._physobj.castShadow = true;
+    this._physobj.recieveShadow = true;
   };
   
   Entity.prototype.setMass = function(mass) {
-    this._physobj.mass = mass;
+    this.mass = mass;
   };
   
   var world = null;
@@ -56,20 +74,26 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   };
   
   Entity.prototype.addToWorld = function(scene) {
-    if (scene)
-      return scene.add(this._physobj);
-    if (world)
-      return world.add(this._physobj);
+    if (scene) {
+      scene.add(this._physobj);
+    } else if (world) {
+      world.add(this._physobj);
+    }
     
-    var this = self;
+    var self = this;
     this._physobj.addEventListener('collision', function(otherthing, linvel, angvel) {
-      self.emit('collision', otherthing, linvel, angvel);
+      if (self.onCollision) {
+        self.onCollision(otherthing, linvel, angvel);
+      }
     });
   };
   
   Entity.prototype.setPos = function(vec) {
-    this._physobj.position = vec;
-    this._physobj.__dirtyPosition = true;
+    this.pos = vec;
+    if (this._physobj) {
+      this._physobj.position = vec;
+      this._physobj.__dirtyPosition = true;
+    }
   };
   
   Entity.prototype.getPos = function() {
@@ -77,8 +101,11 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   };
   
   Entity.prototype.setRotation = function(quat) {
-    this._physobj.quaternion = quat;
-    this._physobj.__dirtyRotation = true;
+    this.rot = quat;
+    if (this._physobj) {
+      this._physobj.quaternion = quat;
+      this._physobj.__dirtyRotation = true;
+    }
   };
   
   Entity.prototype.getRotation = function() {
@@ -86,4 +113,4 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   };
 
   window.Entity = Entity;
-}).call(this);
+})();
