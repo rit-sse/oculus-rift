@@ -3,6 +3,9 @@ Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = './ammo.js';
 
 var OculusLeapLift = function() {
+
+  this.path = [new THREE.Vector3(0,10,200), new THREE.Vector3(0,200,0), new THREE.Vector3(200,10,0)];
+  
   this.initScene();
 
   var self = this;
@@ -22,13 +25,38 @@ OculusLeapLift.prototype.render = function() {
   this.controls.update( Date.now() - this.time, polled ? this.vrstate : null );
   this.time = Date.now();
   
+  var pos = this.interpolation(this.path, (Math.sin(this.time/5000)+1)/2);
+  this.camera.position = pos;
+  
   this.effect.render( this.scene, this.camera );
   this.requestAnimationFrame();
 };
 
+OculusLeapLift.prototype.PointOn3DCurve = function (dis,pt1,pt2,pt3) {
+	var out1 = Math.pow((1-dis),2)*pt1.x+2*(1-dis)*dis*pt2.x+Math.pow(dis,2)*pt3.x;
+	var out2 = Math.pow((1-dis),2)*pt1.y+2*(1-dis)*dis*pt2.y+Math.pow(dis,2)*pt3.y;
+	var out3 = Math.pow((1-dis),2)*pt1.z+2*(1-dis)*dis*pt2.z+Math.pow(dis,2)*pt3.z;
+	return new THREE.Vector3(out1,out2,out3);
+}
+
+OculusLeapLift.prototype.interpolation = function(path, fraction) {
+  return this.PointOn3DCurve(fraction, path[0], path[1], path[2]);
+};
+
 var origin = new THREE.Vector3(0,0,0);
-OculusLeapLift.prototype.puntBox = function(vec) {
-  this.box.applyCentralImpulse(vec);
+OculusLeapLift.prototype.shootBullet = function() {
+  
+  var local = new THREE.Vector3(0,0,-1);
+  var world = local.applyMatrix4(this.camera.matrixWorld);
+  var dir = world.sub(this.camera.position).normalize();
+
+  var bullet = new Entity(null,1);
+  var geom = new THREE.SphereGeometry(0.5,10,10);
+  var mat = new THREE.MeshLambertMaterial({color: 0x45edfe});
+  bullet.setGeometry(geom, [mat]);
+  bullet.setPos(this.camera.position.clone().add(dir.multiplyScalar(20)));
+  bullet.setRotation(this.camera.quaternion.clone());
+  bullet.applyForce(dir.multiplyScalar(100));
 };
 
 OculusLeapLift.prototype.requestAnimationFrame = function() {
@@ -65,27 +93,6 @@ OculusLeapLift.prototype.initScene = function() {
 
   this.scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 
-  // Box
-  this.box = new Physijs.SphereMesh(
-    new THREE.SphereGeometry( 2, 10 ),
-    new THREE.MeshPhongMaterial({ color: 0x888888 })
-  );
-  this.scene.add( this.box );
-  this.box.castShadow = true;
-  this.box.position.set(0,20,0);
-  this.box.__dirtyPosition = true;
-  this.box.addEventListener('collision', function(otherthing, linvel, angvel) {
-    if (otherthing===self.target) {
-      self.box.position.set(0,20,0);
-      self.controls.getObject().position.set(0,10,10);
-      self.box.setLinearVelocity(new THREE.Vector3(0,0,0));
-      self.box.setAngularVelocity(new THREE.Vector3(0,0,0));
-      self.controls.getObject().__dirtyPosition = true;
-      self.box.__dirtyPosition = true;
-    }
-  });
-
-
   this.floor = new Physijs.BoxMesh(
     new THREE.CubeGeometry( 1000, 1, 1000 ),
     new THREE.MeshPhongMaterial({ color: 0x666666 }),
@@ -105,8 +112,7 @@ OculusLeapLift.prototype.initScene = function() {
   this.target.position = new THREE.Vector3(0,5,-10);
   this.target.__dirtyPosition = true;
 
-  this.scene.setGravity(new THREE.Vector3(0,-10,0));
-
+  this.scene.setGravity(new THREE.Vector3(0,-15,0));
 
   //Lighting
   var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
@@ -150,7 +156,7 @@ OculusLeapLift.prototype.initScene = function() {
 
   
   this.controls = new THREE.OculusRiftControls( this.camera );
-  this.scene.add( this.controls.getObject() );
+  this.scene.add(this.controls.getObject());
 
   this.vrstate = new vr.State();
   
@@ -164,11 +170,7 @@ OculusLeapLift.prototype.initScene = function() {
 
   document.querySelector( 'body' ).appendChild( this.renderer.domElement );
 
-  Entity.setWorld(this.scene);
-  
-  var teapot = new Entity('models/teapot.obj', 50);
-  teapot.setPos(new THREE.Vector3(0,25,-5));
-  teapot.setRotation((new THREE.Quaternion(1,0,12,6)).normalize());
+  Entity.setWorld(this.scene); //Set up the entity system to work with this environment
   
   this.requestAnimationFrame();
 };
