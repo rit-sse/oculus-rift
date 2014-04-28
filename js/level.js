@@ -5,7 +5,7 @@
 (function(){
   var Level = function(path, time, setup, teardown) {
     this.path = path;
-    this.duration = level;
+    this.duration = time;
     this.setupfunc = setup;
     this.teardownfunc = teardown;
   };
