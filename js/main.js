@@ -116,9 +116,10 @@ OculusLeapLift.prototype.initScene = function() {
   
   this.target = new Target(function() {
     self.target.addToWorld(self.scene);
-    self.target._physobj.scale.set(30,30,1);
+    self.target.setPos(new THREE.Vector3(120,25,-50));
+    self.target._physobj.scale.set(20,20,1);
+    self.target.setRotation(self.camera.quaternion);
   });
-  this.target.setPos(new THREE.Vector3(-50,100,-10));
   
   this.scene.setGravity(new THREE.Vector3(0,-15,0));
 

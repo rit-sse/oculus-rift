@@ -28,24 +28,41 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   /**
   * Set the entity's model, optional callback for when complete
   */
-  Entity.prototype.setModel = function(path, cb) {
+  Entity.prototype.setModel = function(path, cb, cb2) {
+    var mtlurl = null;
+    if (cb2) {
+      mtlurl = cb; cb = cb2;
+    }
     var self = this;
     var loader;
     if (path.endsWith('.js') || path.endsWith('.json')) {
       loader = new THREE.JSONLoader(); //Will error if loader isn't defined
+      loader.load(path, function(geometry, mats) {
+        self.setGeometry(geometry, mats);
+        if (cb) cb();
+      });
     } else if (path.endsWith('.obj')) {
-      loader = new THREE.OBJLoader();
+      if (mtlurl) {
+        loader = new THREE.OBJMTLLoader(); //Special, textured, snowflake
+        loader.load(path, mtlurl, function(object) {
+          self._physobj = object; //Add w/o physics simulation
+          self.setPos(self.pos);
+          if (cb) cb();
+        });
+      } else {
+        loader = new THREE.OBJLoader();
+        loader.load(path, function(geometry, mats) {
+          self.setGeometry(geometry, mats);
+          if (cb) cb();
+        });
+      }
     } else if (path.endsWith('.dae')) {
       loader = new THREE.ColladaLoader();
+      loader.load(path, function(geometry, mats) {
+        self.setGeometry(geometry, mats);
+        if (cb) cb();
+      });
     }
-    if (loader.options)
-      loader.options.convertUpAxis = true; 
-    //Most models probably don't use the three.js coordinate system, some might, though. Balance of probabilities.
-    
-    loader.load(path, function(geometry, mats) {
-      self.setGeometry(geometry, mats);
-      if (cb) cb();
-    });
   };
   
   /**
@@ -53,7 +70,6 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   */
   Entity.prototype.setGeometry = function(geom, mats) {
     var facemat = null;
-    console.log(mats);
     if (mats && mats.length>0) {
       facemat = mats[0];
     } else {
