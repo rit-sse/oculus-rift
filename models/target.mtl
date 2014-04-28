@@ -9,7 +9,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 0
-map_Kd C:\Users\Ethan\Desktop\BlenderWorks\target.png
+map_Kd target.png
 
 newmtl white.001
 Ns 96.078431
@@ -19,4 +19,4 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 0
-map_Kd C:\Users\Ethan\Desktop\BlenderWorks\target.png
+map_Kd target.png
