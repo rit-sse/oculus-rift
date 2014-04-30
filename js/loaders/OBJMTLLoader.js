@@ -25,23 +25,7 @@ THREE.OBJMTLLoader.prototype = {
 			loader.setCrossOrigin( this.crossOrigin );
 			loader.load( url, function ( text ) {
 
-				var object = scope.parse( text );
-
-				object.traverse( function ( object ) {
-
-					if ( object instanceof THREE.Mesh ) {
-
-						if ( object.material.name ) {
-
-							var material = materialsCreator.create( object.material.name );
-
-							if ( material ) object.material = material;
-
-						}
-
-					}
-
-				} );
+				var object = scope.parse( text, materialsCreator );
 
 				onLoad( object );
 
@@ -58,7 +42,7 @@ THREE.OBJMTLLoader.prototype = {
 	 * @return {THREE.Object3D} - Object3D (with default material)
 	 */
 
-	parse: function ( data, mtllibCallback ) {
+	parse: function ( data, mtlmake, mtllibCallback ) {
 
 		function vector( x, y, z ) {
 
@@ -90,10 +74,10 @@ THREE.OBJMTLLoader.prototype = {
 				geometry.computeFaceNormals();
 				geometry.computeBoundingSphere();
 
-				object.add( mesh );
+                object.add( mesh );
 
 				geometry = new THREE.Geometry();
-				mesh = new THREE.Mesh( geometry, material );
+				mesh = new Physijs.ConvexMesh( geometry, material );
 				verticesCount = 0;
 
 			}
@@ -101,22 +85,18 @@ THREE.OBJMTLLoader.prototype = {
 			if ( meshName !== undefined ) mesh.name = meshName;
 
 			if ( materialName !== undefined ) {
-
-				material = new THREE.MeshLambertMaterial();
-				material.name = materialName;
-
-				mesh.material = material;
-
+				mesh.material = mtlmake.create(materialName);
 			}
 
 		}
 
-		var group = new THREE.Object3D();
-		var object = group;
+		var toplevel = new Physijs.Mesh();
+		var object = new Physijs.Mesh();
+        toplevel.add(object);
 
 		var geometry = new THREE.Geometry();
 		var material = new THREE.MeshLambertMaterial();
-		var mesh = new THREE.Mesh( geometry, material );
+		var mesh = new Physijs.ConvexMesh( geometry, material );
 
 		var vertices = [];
 		var verticesCount = 0;
@@ -310,9 +290,9 @@ THREE.OBJMTLLoader.prototype = {
 				meshN();
 				face_offset = face_offset + vertices.length;
 				vertices = [];
-				object = new THREE.Object3D();
+				object = new Physijs.Mesh();
 				object.name = line.substring( 2 ).trim();
-				group.add( object );
+				toplevel.add( object );
 
 			} else if ( /^g /.test( line ) ) {
 
@@ -353,7 +333,8 @@ THREE.OBJMTLLoader.prototype = {
 		//Add last object
 		meshN(undefined, undefined);
 		
-		return group;
+        console.log(toplevel);
+		return toplevel;
 
 	}
 
