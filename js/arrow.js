@@ -16,7 +16,7 @@
   };
   
   Arrow.prototype.getDamage = function() {
-    return 10;
+    return 100;
   };
   window.Arrow = Arrow;
 })();

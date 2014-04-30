@@ -1,4 +1,7 @@
 (function(){
+  var shatter = 'sound/doop.mp3';
+  Sound.Add(shatter);
+  
   var Target = function(cb) {
     var self = this;
     this.setMeshType(Physijs.CylinderMesh);
@@ -11,7 +14,8 @@
   Target.prototype = Object.create( Damageable.prototype );
   
   Target.prototype.onRemove = function() {
-    //Play shatter sound
+    console.log('Playing shatter sound');
+    Sound.Play(shatter);
   };
   
   window.Target = Target;
