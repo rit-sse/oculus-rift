@@ -115,8 +115,8 @@ OculusLeapLift.prototype.initScene = function() {
   this.target._physobj.material = new THREE.MeshLambertMaterial({color: 0x8e55de});*/
   
   this.target = new Target(function() {
+    self.target._physobj.scale.set(30,30,1); //Scaling a loaded model will NOT scale the physics object!
     self.target.addToWorld(self.scene);
-    self.target._physobj.scale.set(30,30,1);
     self.target.setPos(new THREE.Vector3(120,25,-50));
     self.target.setRotation(self.camera.quaternion);
     self.target.onCollision = function(other, lin, ang) {

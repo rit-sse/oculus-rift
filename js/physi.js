@@ -798,35 +798,36 @@ window.Physijs = (function() {
 		var i;
 
 		for ( i = 0; i < object.children.length; i++ ) {
-			if ( object.children[i]._physijs ) {
-				object.children[i].updateMatrix();
-				object.children[i].updateMatrixWorld();
+            var child = object.children[i]; 
+			if ( child._physijs ) {
+				child.updateMatrix();
+				child.updateMatrixWorld();
 
-				_temp_vector3_1.setFromMatrixPosition( object.children[i].matrixWorld );
-				_quaternion_1.setFromRotationMatrix( object.children[i].matrixWorld );
+				_temp_vector3_1.setFromMatrixPosition( child.matrixWorld );
+				_quaternion_1.setFromRotationMatrix( child.matrixWorld );
 
-				object.children[i]._physijs.position_offset = {
+				child._physijs.position_offset = {
 					x: _temp_vector3_1.x,
 					y: _temp_vector3_1.y,
 					z: _temp_vector3_1.z
 				};
 
-				object.children[i]._physijs.rotation = {
+				child._physijs.rotation = {
 					x: _quaternion_1.x,
 					y: _quaternion_1.y,
 					z: _quaternion_1.z,
 					w: _quaternion_1.w
 				};
 
-				parent._physijs.children.push( object.children[i]._physijs );
+				parent._physijs.children.push( child._physijs );
 			}
 
-			addObjectChildren( parent, object.children[i] );
+			addObjectChildren( parent, child );
 		}
 	};
 
 	Physijs.Scene.prototype.add = function( object ) {
-        THREE.Mesh.prototype.add.call( this, object );
+        THREE.Scene.prototype.add.call( this, object );
       
 		if ( object._physijs ) {
 
@@ -848,6 +849,7 @@ window.Physijs = (function() {
 					object._physijs.children = [];
 					addObjectChildren( object, object );
 				}
+                console.log(object._physijs);
 
 				if ( object.material._physijs ) {
 					if ( !this._materials_ref_counts.hasOwnProperty( object.material._physijs.id ) ) {
@@ -874,7 +876,8 @@ window.Physijs = (function() {
 				if ( object._physijs.depth ) {
 					object._physijs.depth *= object.scale.z;
 				}
-
+              
+              
 				this.execute( 'addObject', object._physijs );
 
 			}
@@ -958,7 +961,7 @@ window.Physijs = (function() {
 	Physijs.Mesh = function ( geometry, material, mass ) {
 		var index;
 
-        THREE.Object3D.call( this );
+        //THREE.Object3D.call( this );
 		if ( !geometry ) {
 			geometry = new THREE.Geometry();
             material = new THREE.MeshBasicMaterial();
@@ -972,7 +975,7 @@ window.Physijs = (function() {
 		}
 
 		this._physijs = {
-			type: null,
+			type: 'container',
 			id: getObjectId(),
 			mass: mass || 0,
 			touches: [],
@@ -1252,10 +1255,18 @@ window.Physijs = (function() {
 			geometry.computeBoundingBox();
 		}
 
-		vertices = geometry.vertices;
-
-		for ( i = 0; i < geometry.faces.length; i++ ) {
-			face = geometry.faces[i];
+        this.buildVerts();
+        this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
+	};
+	Physijs.ConcaveMesh.prototype = Object.create( Physijs.Mesh.prototype );
+	//Physijs.ConcaveMesh.prototype.constructor = Physijs.ConcaveMesh;
+  
+    Physijs.ConcaveMesh.prototype.buildVerts = function() {
+		var vertices = this.geometry.vertices;
+        var triangles = [];
+      
+		for (var i = 0; i < this.geometry.faces.length; i++ ) {
+			var face = this.geometry.faces[i];
 			if ( face instanceof THREE.Face3) {
 
 				triangles.push([
@@ -1280,16 +1291,13 @@ window.Physijs = (function() {
 			}
 		}
 
-		width = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
-		height = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-		depth = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
+		var width = this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x;
+		var height = this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y;
+		var depth = this.geometry.boundingBox.max.z - this.geometry.boundingBox.min.z;
 
 		this._physijs.type = 'concave';
 		this._physijs.triangles = triangles;
-		this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
-	};
-	Physijs.ConcaveMesh.prototype = Object.create( Physijs.Mesh.prototype );
-	//Physijs.ConcaveMesh.prototype.constructor = Physijs.ConcaveMesh;
+    };
 
 
 	// Physijs.ConvexMesh

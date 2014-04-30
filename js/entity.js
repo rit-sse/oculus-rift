@@ -46,6 +46,7 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
         loader = new THREE.OBJMTLLoader(); //Special, textured, snowflake
         loader.load(path, mtlurl, function(object) {
           self._physobj = object; //Add w/o physics simulation
+          self._physobj.castShadow = true;
           if (cb) cb();
         });
       } else {

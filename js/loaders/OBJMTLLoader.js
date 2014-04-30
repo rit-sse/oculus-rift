@@ -26,6 +26,12 @@ THREE.OBJMTLLoader.prototype = {
 			loader.load( url, function ( text ) {
 
 				var object = scope.parse( text, materialsCreator );
+              
+                object.traverse(function(obj) {
+                  if (obj.buildVerts) {
+                    obj.buildVerts();
+                  }
+                });
 
 				onLoad( object );
 
@@ -77,7 +83,7 @@ THREE.OBJMTLLoader.prototype = {
                 object.add( mesh );
 
 				geometry = new THREE.Geometry();
-				mesh = new Physijs.ConvexMesh( geometry, material );
+				mesh = new Physijs.ConcaveMesh( geometry, material );
 				verticesCount = 0;
 
 			}
@@ -96,7 +102,7 @@ THREE.OBJMTLLoader.prototype = {
 
 		var geometry = new THREE.Geometry();
 		var material = new THREE.MeshLambertMaterial();
-		var mesh = new Physijs.ConvexMesh( geometry, material );
+		var mesh = new Physijs.ConcaveMesh( geometry, material );
 
 		var vertices = [];
 		var verticesCount = 0;
@@ -333,7 +339,6 @@ THREE.OBJMTLLoader.prototype = {
 		//Add last object
 		meshN(undefined, undefined);
 		
-        console.log(toplevel);
 		return toplevel;
 
 	}
