@@ -43,20 +43,23 @@ OculusLeapLift.prototype.interpolation = function(path, fraction) {
   return this.PointOn3DCurve(fraction, path[0], path[1], path[2]);
 };
 
-var origin = new THREE.Vector3(0,0,0);
 OculusLeapLift.prototype.shootBullet = function() {
   
   var local = new THREE.Vector3(0,0,-1);
   var world = local.applyMatrix4(this.camera.matrixWorld);
   var dir = world.sub(this.camera.position).normalize();
 
-  var bullet = new Entity(null,1);
-  var geom = new THREE.SphereGeometry(0.5,10,10);
-  var mat = new THREE.MeshLambertMaterial({color: 0x45edfe});
-  bullet.setGeometry(geom, [mat]);
-  bullet.setPos(this.camera.position.clone().add(dir.multiplyScalar(20)));
-  bullet.setRotation(this.camera.quaternion.clone());
-  bullet.applyForce(dir.multiplyScalar(100));
+  var scope = this;
+  var bullet = new Arrow(function() {
+    bullet.setPos(scope.camera.position.clone().add(dir.multiplyScalar(20)));
+    var eul = new THREE.Euler();
+    eul.setFromQuaternion(scope.camera.quaternion);
+    eul.y += Math.PI;
+    var qu = new THREE.Quaternion();
+    qu.setFromEuler(eul);
+    bullet.setRotation(qu);
+    bullet.launch(dir.multiplyScalar(100));
+  });
 };
 
 OculusLeapLift.prototype.requestAnimationFrame = function() {
@@ -101,17 +104,26 @@ OculusLeapLift.prototype.initScene = function() {
   this.floor.receiveShadow = true;
   this.scene.add( this.floor );
   
-  this.target = new Physijs.BoxMesh(
-    new THREE.CubeGeometry(10,10,1),
-    new THREE.MeshPhongMaterial({ color: 0xfe34ac }),
-    0 //0 mass, ground.
-  );
-  this.target.castShadow = true;
-  this.target.receiveShadow = true;
-  this.scene.add(this.target);
-  this.target.position = new THREE.Vector3(0,5,-10);
-  this.target.__dirtyPosition = true;
-
+  /*
+  this.target = new Damageable(null, null, 0, 100);
+  this.target.setGeometry(new THREE.CubeGeometry(100,400,1));
+  this.target.addToWorld(this.scene);
+  this.target.setPos(new THREE.Vector3(-50,200,-10));
+  this.target.onCollision = function() {
+    console.log('The wall has '+self.target.getHealth()+' hp left!');
+  };
+  this.target._physobj.material = new THREE.MeshLambertMaterial({color: 0x8e55de});*/
+  
+  this.target = new Target(function() {
+    self.target.addToWorld(self.scene);
+    self.target._physobj.scale.set(30,30,1);
+    self.target.setPos(new THREE.Vector3(120,25,-50));
+    self.target.setRotation(self.camera.quaternion);
+    self.target.onCollision = function(other, lin, ang) {
+      console.log('I\'ve been hit!');
+    };
+  });
+  
   this.scene.setGravity(new THREE.Vector3(0,-15,0));
 
   //Lighting
@@ -176,6 +188,11 @@ OculusLeapLift.prototype.initScene = function() {
 };
 
 vr.load(function(err) {
-  console.log(err);
   OLL = new OculusLeapLift();
+  window.addEventListener('keypress', function(e){
+  var keycode = e.keyCode;
+    if (keycode==32) { //Spacebar
+      OLL.shootBullet();
+    }
+  }, false);
 });

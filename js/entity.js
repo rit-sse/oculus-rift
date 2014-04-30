@@ -6,9 +6,10 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
   /**
   * Construct a generic physically simulated entity object
   */
-  var Entity = function(model, mass) {
+  var Entity = function(model, phys, mass, cb) {
     var self = this;
-    if (model) this.setModel(model);
+    this.setMeshType(phys || Physijs.BoxMesh);
+    if (model) this.setModel(model, cb);
     this.setMass(mass || 0);
   };
   
@@ -20,27 +21,47 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
     };
   }
   
+  Entity.prototype.setMeshType = function(cfunc) {
+    this.meshcon = cfunc;
+  };
+  
   /**
   * Set the entity's model, optional callback for when complete
   */
-  Entity.prototype.setModel = function(path, cb) {
+  Entity.prototype.setModel = function(path, cb, cb2) {
+    var mtlurl = null;
+    if (cb2) {
+      mtlurl = cb; cb = cb2;
+    }
     var self = this;
     var loader;
     if (path.endsWith('.js') || path.endsWith('.json')) {
       loader = new THREE.JSONLoader(); //Will error if loader isn't defined
+      loader.load(path, function(geometry, mats) {
+        self.setGeometry(geometry, mats);
+        if (cb) cb();
+      });
     } else if (path.endsWith('.obj')) {
-      loader = new THREE.OBJLoader();
+      if (mtlurl) {
+        loader = new THREE.OBJMTLLoader(); //Special, textured, snowflake
+        loader.load(path, mtlurl, function(object) {
+          self._physobj = object; //Add w/o physics simulation
+          if (cb) cb();
+        });
+      } else {
+        loader = new THREE.OBJLoader();
+        loader.load(path, function(geometry, mats) {
+          self.setGeometry(geometry, mats);
+          if (cb) cb();
+        });
+      }
     } else if (path.endsWith('.dae')) {
       loader = new THREE.ColladaLoader();
+      loader.load(path, function(geometry, mats) {
+        self.setGeometry(geometry, mats);
+        if (cb) cb();
+      });
     }
-    if (loader.options)
-      loader.options.convertUpAxis = true; 
-    //Most models probably don't use the three.js coordinate system, some might, though. Balance of probabilities.
-    
-    loader.load(path, function(geometry, mats) {
-      self.setGeometry(geometry, mats);
-      if (cb) cb();
-    });
   };
   
   /**
@@ -65,13 +86,13 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
       var pos = this.getPos();
       var rot = this.getRotation();
       this.world.remove(this._physobj);
-      this._physobj = new Physijs.ConcaveMesh(tGeom, facemat);
+      this._physobj = new this.meshcon(tGeom, facemat);
       this.addToWorld();
       this.setPos(pos);
       this.setRotation(rot);
       this.setGravity(this.gravity);
     } else {
-      this._physobj = new Physijs.ConcaveMesh(tGeom, facemat); //Assume worst case for phys meshes
+      this._physobj = new this.meshcon(tGeom, facemat); //Assume worst case for phys meshes
       this.addToWorld();
       this.setPos(this.pos || new THREE.Vector3());
       this.setRotation(this.rot || new THREE.Quaternion());
@@ -112,9 +133,10 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
     }
     
     var self = this;
+    this._physobj.entity = this;
     this._physobj.addEventListener('collision', function(otherthing, linvel, angvel) {
       if (self.onCollision) {
-        self.onCollision(otherthing, linvel, angvel);
+        self.onCollision(otherthing.entity || "world", linvel, angvel);
       }
     });
   };
@@ -146,7 +168,7 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
       this._physobj.quaternion = quat;
       this._physobj.__dirtyRotation = true;
     }
-  };
+  };  
   
   /**
   * Get the entity's rotation (may error if the physobj hasn't been loaded yet)
