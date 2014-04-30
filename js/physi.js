@@ -448,12 +448,12 @@ window.Physijs = (function() {
 						case 'objectReady':
 							_temp = data.params;
 							if ( self._objects[ _temp ] ) {
-								self._objects[ _temp ].dispatchEvent( 'ready' );
+								self._objects[ _temp ].dispatchEvent( {type: 'ready'} );
 							}
 							break;
 
 						case 'worldReady':
-							self.dispatchEvent( 'ready' );
+							self.dispatchEvent( {type: 'ready'} );
 							break;
 
 						case 'vehicle':
@@ -696,7 +696,7 @@ window.Physijs = (function() {
 								);
 							}
 
-							object.dispatchEvent( 'collision', object2, _temp1, _temp2, _temp_vector3_1 );
+							object.dispatchEvent( {type: 'collision', object: object2, linvel: _temp1, angvel: _temp2, normal: _temp_vector3_1} );
 						}
 					}
 				}
@@ -849,7 +849,6 @@ window.Physijs = (function() {
 					object._physijs.children = [];
 					addObjectChildren( object, object );
 				}
-                console.log(object._physijs);
 
 				if ( object.material._physijs ) {
 					if ( !this._materials_ref_counts.hasOwnProperty( object.material._physijs.id ) ) {

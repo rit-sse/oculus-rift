@@ -135,10 +135,17 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
     
     var self = this;
     this._physobj.entity = this;
-    this._physobj.addEventListener('collision', function(otherthing, linvel, angvel) {
+    var handler = function(otherthing, linvel, angvel, normal) {
       if (self.onCollision) {
-        self.onCollision(otherthing.entity || "world", linvel, angvel);
+        self.onCollision(otherthing.entity || "world", linvel, angvel, normal);
       }
+    }
+    
+    this._physobj.traverse(function(obj) {
+      obj.entity = self;
+      obj.addEventListener('collision', function(event) {
+        handler(event.object, event.linvel, event.angvel, event.normal);
+      }, false);
     });
   };
   

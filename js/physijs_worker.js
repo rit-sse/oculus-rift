@@ -346,10 +346,8 @@ public_functions.addObject = function( description ) {
 shape = createShape( description );
 // If there are children then this is a compound shape
 if ( description.children ) {
-    console.log('Forming a compound shape!');
 	var compound_shape = new Ammo.btCompoundShape(), _child;
     if (shape) {
-      console.log('Adding parent shape to compound');
       compound_shape.addChildShape( _transform, shape );
     } 
   
@@ -372,7 +370,6 @@ if ( description.children ) {
 		
 		shape = createShape( description.children[i] );
         if (shape) {
-          console.log('Adding child shape to compound');
 		  compound_shape.addChildShape( trans, shape );
         }
 		Ammo.destroy(trans);
@@ -1271,7 +1268,7 @@ reportCollisions = function() {
 				break;
 			//}
 				
-				//transferableMessage( _objects_ammo );	
+				transferableMessage( _objects_ammo );	
 		
 		}	
 	}
