@@ -39,7 +39,7 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
       loader = new THREE.JSONLoader(); //Will error if loader isn't defined
       loader.load(path, function(geometry, mats) {
         self.setGeometry(geometry, mats);
-        if (cb) cb();
+        if (cb) cb(self);
       });
     } else if (path.endsWith('.obj')) {
       if (mtlurl) {
@@ -47,20 +47,20 @@ Entity.js - A Wrapper around Physi.js and Three.js that provides a
         loader.load(path, mtlurl, function(object) {
           self._physobj = object; //Add w/o physics simulation
           self._physobj.castShadow = true;
-          if (cb) cb();
+          if (cb) cb(self);
         });
       } else {
         loader = new THREE.OBJLoader();
         loader.load(path, function(geometry, mats) {
           self.setGeometry(geometry, mats);
-          if (cb) cb();
+          if (cb) cb(self);
         });
       }
     } else if (path.endsWith('.dae')) {
       loader = new THREE.ColladaLoader();
       loader.load(path, function(geometry, mats) {
         self.setGeometry(geometry, mats);
-        if (cb) cb();
+        if (cb) cb(self);
       });
     }
   };

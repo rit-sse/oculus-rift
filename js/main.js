@@ -5,6 +5,7 @@ Physijs.scripts.ammo = './ammo.js';
 var OculusLeapLift = function() {
 
   this.path = [new THREE.Vector3(0,10,200), new THREE.Vector3(0,200,0), new THREE.Vector3(200,10,0)];
+  this.ttl = 4000;
   
   this.initScene();
 
@@ -25,7 +26,7 @@ OculusLeapLift.prototype.render = function() {
   this.controls.update( Date.now() - this.time, polled ? this.vrstate : null );
   this.time = Date.now();
   
-  var pos = this.interpolation(this.path, (Math.sin(this.time/5000)+1)/2);
+  var pos = this.interpolation(this.path, (Math.sin(this.time/this.ttl)+1)/2);
   this.camera.position = pos;
   
   this.effect.render( this.scene, this.camera );
@@ -51,7 +52,7 @@ OculusLeapLift.prototype.shootBullet = function() {
 
   var scope = this;
   var bullet = new Arrow(function() {
-    bullet.setPos(scope.camera.position.clone().add(dir.multiplyScalar(20)));
+    bullet.setPos(scope.camera.position.clone().add(dir.multiplyScalar(2)));
     var eul = new THREE.Euler();
     eul.setFromQuaternion(scope.camera.quaternion);
     eul.y += Math.PI;
@@ -103,22 +104,6 @@ OculusLeapLift.prototype.initScene = function() {
   );
   this.floor.receiveShadow = true;
   this.scene.add( this.floor );
-  
-  /*
-  this.target = new Damageable(null, null, 0, 100);
-  this.target.setGeometry(new THREE.CubeGeometry(100,400,1));
-  this.target.addToWorld(this.scene);
-  this.target.setPos(new THREE.Vector3(-50,200,-10));
-  this.target.onCollision = function() {
-    console.log('The wall has '+self.target.getHealth()+' hp left!');
-  };
-  this.target._physobj.material = new THREE.MeshLambertMaterial({color: 0x8e55de});*/
-  
-  this.target = new Target(function() {
-    self.target.addToWorld(self.scene);
-    self.target.setPos(new THREE.Vector3(120,25,-50));
-    self.target.setRotation(self.camera.quaternion);
-  });
   
   this.scene.setGravity(new THREE.Vector3(0,-15,0));
 
@@ -180,6 +165,7 @@ OculusLeapLift.prototype.initScene = function() {
 
   Entity.setWorld(this.scene); //Set up the entity system to work with this environment
   
+  window.Levels[0].start(this);
   this.requestAnimationFrame();
 };
 

@@ -10,17 +10,14 @@
     this.teardownfunc = teardown;
   };
 
-  Level.prototype.start = function() {
-    this.setupfunc(this);
+  Level.prototype.start = function(context) {
+    context.path = this.path;
+    context.ttl = this.duration;
+    this.setupfunc(this, context);
   };
   
-  Level.prototype.end = function() {
-    this.teardownfunc(this);
-  };
-  
-  Level.prototype.next = function(level) {
-    this.nextlevel = level;
-    return level;
+  Level.prototype.end = function(context) {
+    this.teardownfunc(this, context);
   };
   
   window.Level = Level;

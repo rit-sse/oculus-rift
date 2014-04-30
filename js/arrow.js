@@ -1,6 +1,6 @@
 (function() {
   var Arrow = function(cb) {
-    Damageable.call(this, "models/arrow.obj", Physijs.BoxMesh, 20, 5, cb);
+    Damageable.call(this, "models/arrow.obj", Physijs.ConvexMesh, 20, 5, cb);
   };
   Arrow.prototype = Object.create( Damageable.prototype );
   
