@@ -9,6 +9,8 @@
     this.setHealth(this.getHealth()-damage);
     if (this.getHealth()<=0) {
       this.setHealth(0);
+      if (this.onDestroy)
+        this.onDestroy(damage);
       this.remove();
     }
   };

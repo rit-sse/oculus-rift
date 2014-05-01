@@ -38,7 +38,6 @@ OculusLeapLift.prototype.render = function() {
   
   if (this.totaltime === this.ttl) {
     this.endLevel();
-    
   }
   
   this.requestAnimationFrame();
@@ -46,6 +45,7 @@ OculusLeapLift.prototype.render = function() {
 
 OculusLeapLift.prototype.startLevel = function(num) {
   var level = window.Levels[num];
+  console.log(num);
   this.path = level.path;
   this.ttl = level.duration;
   this.totaltime = 0;
@@ -55,6 +55,25 @@ OculusLeapLift.prototype.startLevel = function(num) {
 
 OculusLeapLift.prototype.endLevel = function() {
   this.level.end(this);
+  this.ttl = 99999999999999999;
+  this.totaltime = 0;
+  this.lastlevel = this.level;
+  delete this.level;
+}
+
+OculusLeapLift.prototype.advanceLevel = function() {
+  if (!this.level) { //Only operate when there's no active level
+    if (this.lastlevel) { //Go to next level if it exists
+      console.log(window.Levels.length, this.lastlevel.id)
+      if ((window.Levels.length-1)<=this.lastlevel.id) {
+        this.startLevel(0);
+      } else { 
+        this.startLevel(this.lastlevel.id+1);
+      }
+    } else { //Go to first level
+      this.startLevel(0);
+    }
+  }
 }
 
 OculusLeapLift.prototype.PointOn3DCurve = function (dis,pt1,pt2,pt3) {
@@ -189,7 +208,6 @@ OculusLeapLift.prototype.initScene = function() {
 
   Entity.setWorld(this.scene); //Set up the entity system to work with this environment
   
-  this.startLevel(0);
   this.requestAnimationFrame();
 };
 
@@ -198,7 +216,11 @@ vr.load(function(err) {
   window.addEventListener('keypress', function(e){
   var keycode = e.keyCode;
     if (keycode==32) { //Spacebar
-      OLL.shootBullet();
+      if (OLL.level) {
+        OLL.shootBullet();
+      } else {
+        OLL.advanceLevel();
+      }
     }
   }, false);
 });

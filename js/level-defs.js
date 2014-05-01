@@ -18,7 +18,7 @@
   
   pushLevelDef(new Level(
     [new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0)], //Stationary, a brief intoduction
-    3000,
+    10000,
     function(ctx, game) {
       //Setup
       ctx.dist = 150;
@@ -42,6 +42,7 @@
       for (var i=0;i<ctx.count; i++) {
         if (ctx.targets[i]) {
           ctx.targets[i].remove();
+          delete ctx.targets[i];
         }
       }
     }));

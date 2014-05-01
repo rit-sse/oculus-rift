@@ -13,7 +13,7 @@
   };
   Target.prototype = Object.create( Damageable.prototype );
   
-  Target.prototype.onRemove = function() {
+  Target.prototype.onDestroy = function() {
     console.log('Playing shatter sound');
     Sound.Play(shatter);
   };
