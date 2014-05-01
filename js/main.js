@@ -23,15 +23,39 @@ OculusLeapLift.prototype.render = function() {
   this.scene.simulate(); // run physics
   
   var polled = vr.pollState(this.vrstate);
-  this.controls.update( Date.now() - this.time, polled ? this.vrstate : null );
+  var delta = Date.now() - this.time;
+  this.totaltime += delta;
+  this.controls.update( delta, polled ? this.vrstate : null );
   this.time = Date.now();
   
-  var pos = this.interpolation(this.path, (Math.sin(this.time/this.ttl)+1)/2);
+  if (this.totaltime >= this.ttl)
+    this.totaltime = this.ttl;
+  
+  var pos = this.interpolation(this.path, (Math.sin(this.totaltime/this.ttl)+1)/2);
   this.camera.position = pos;
   
   this.effect.render( this.scene, this.camera );
+  
+  if (this.totaltime === this.ttl) {
+    this.endLevel();
+    
+  }
+  
   this.requestAnimationFrame();
 };
+
+OculusLeapLift.prototype.startLevel = function(num) {
+  var level = window.Levels[num];
+  this.path = level.path;
+  this.ttl = level.duration;
+  this.totaltime = 0;
+  level.start(this);
+  this.level = level;
+}
+
+OculusLeapLift.prototype.endLevel = function() {
+  this.level.end(this);
+}
 
 OculusLeapLift.prototype.PointOn3DCurve = function (dis,pt1,pt2,pt3) {
 	var out1 = Math.pow((1-dis),2)*pt1.x+2*(1-dis)*dis*pt2.x+Math.pow(dis,2)*pt3.x;
@@ -59,7 +83,7 @@ OculusLeapLift.prototype.shootBullet = function() {
     var qu = new THREE.Quaternion();
     qu.setFromEuler(eul);
     bullet.setRotation(qu);
-    bullet.launch(dir.multiplyScalar(100));
+    bullet.launch(dir.multiplyScalar(1000));
   });
 };
 
@@ -165,7 +189,7 @@ OculusLeapLift.prototype.initScene = function() {
 
   Entity.setWorld(this.scene); //Set up the entity system to work with this environment
   
-  window.Levels[0].start(this);
+  this.startLevel(0);
   this.requestAnimationFrame();
 };
 

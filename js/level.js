@@ -11,8 +11,6 @@
   };
 
   Level.prototype.start = function(context) {
-    context.path = this.path;
-    context.ttl = this.duration;
     this.setupfunc(this, context);
   };
   

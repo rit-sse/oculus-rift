@@ -9,7 +9,14 @@
   };
   var up = new THREE.Vector3(0,1,0);
   var rightang = (new THREE.Quaternion()).setFromAxisAngle(up, -Math.PI/2);
-  window.Levels = [new Level(
+  
+  window.Levels = []
+  var pushLevelDef = function(level) {
+    level.id = window.Levels.length;
+    window.Levels.push(level);
+  };
+  
+  pushLevelDef(new Level(
     [new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0)], //Stationary, a brief intoduction
     3000,
     function(ctx, game) {
@@ -18,7 +25,7 @@
       ctx.count = 8;
       ctx.targets = [];
       for (var i=0; i<ctx.count; i++) {
-        var ang = Math.PI*i/2;
+        var ang = Math.PI*i/4;
         var qang = new THREE.Quaternion();
         qang.setFromAxisAngle(up, ang);
         var pos = new THREE.Vector3(1,0,0);
@@ -37,7 +44,9 @@
           ctx.targets[i].remove();
         }
       }
-    }), new Level(
+    }));
+  
+  pushLevelDef(new Level(
     [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0,1000,0)], //A short jaunt forward
     2500,
     function(ctx, game) {
@@ -46,5 +55,5 @@
     function(ctx, game) {
       //Teardown
     }
-  )];
+  ));
 })();
