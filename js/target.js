@@ -1,22 +1,22 @@
-(function(){
+(function () {
   var shatter = 'sound/doop.mp3';
   Sound.Add(shatter);
-  
-  var Target = function(cb) {
+
+  var Target = function (cb) {
     var self = this;
     this.setMeshType(Physijs.CylinderMesh);
     this.setMass(0);
     this.setHealth(100);
-    this.setModel("models/target32.obj", "models/target32.mtl", function(self) {
+    this.setModel("models/target32.obj", "models/target32.mtl", function (self) {
       cb(self);
     });
   };
-  Target.prototype = Object.create( Damageable.prototype );
-  
-  Target.prototype.onDestroy = function() {
+  Target.prototype = Object.create(Damageable.prototype);
+
+  Target.prototype.onDestroy = function () {
     console.log('Playing shatter sound');
     Sound.Play(shatter);
   };
-  
+
   window.Target = Target;
 })();
