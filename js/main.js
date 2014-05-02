@@ -19,6 +19,10 @@ var OculusLeapLift = function() {
   window.addEventListener( 'resize', handleResize, false );
 };
 
+var padn = function(str) {
+  var str = "0"+str;
+  return str.substr(str.length-2);
+}
 OculusLeapLift.prototype.render = function() {
   this.scene.simulate(); // run physics
   
@@ -28,16 +32,27 @@ OculusLeapLift.prototype.render = function() {
   this.controls.update( delta, polled ? this.vrstate : null );
   this.time = Date.now();
   
-  if (this.totaltime >= this.ttl)
-    this.totaltime = this.ttl;
-  
-  var pos = this.interpolation(this.path, (Math.sin(this.totaltime/this.ttl)+1)/2);
-  this.camera.position = pos;
-  
-  this.effect.render( this.scene, this.camera );
-  
-  if (this.totaltime === this.ttl) {
-    this.endLevel();
+  if (this.ttl) {
+    if (this.totaltime >= this.ttl)
+      this.totaltime = this.ttl;
+
+    var pos = this.interpolation(this.path, (Math.sin(this.totaltime/this.ttl)+1)/2);
+    this.camera.position = pos;
+
+    $(".targetcount").text(this.score || 0);
+    var msrem = this.ttl-this.totaltime || 0;
+    var remmin = Math.floor(msrem/60000);
+    var remsec = (Math.floor(msrem/1000) - (remmin*60));
+    var remms = Math.floor(msrem - ((remsec*1000) + (remmin*60000)));
+    $(".timer").text(padn(remmin)+":"+padn(remsec)+"."+((remms+'').substring(0,2)));
+    this.effect.render( this.scene, this.camera );
+
+    if (this.totaltime === this.ttl) {
+      this.endLevel();
+    }
+  } else {
+    $(".targetcount").text(0);
+    $(".timer").text("00:00.00");
   }
   
   this.requestAnimationFrame();
@@ -55,14 +70,24 @@ OculusLeapLift.prototype.startLevel = function(num) {
 
 OculusLeapLift.prototype.endLevel = function() {
   this.level.end(this);
-  this.ttl = 99999999999999999;
+  delete this.ttl;
   this.totaltime = 0;
   this.lastlevel = this.level;
   delete this.level;
+  
+  $(instruction).appendTo(document.body);
 }
+
+var instruction = [
+    "<div class=\"instruction\">",
+      "<h1 class=\"centerleft blink\">Spacebar to begin</h1>",
+      "<h1 class=\"centerright blink\">Spacebar to begin</h1>",  
+    "</div>"
+].join("\n");
 
 OculusLeapLift.prototype.advanceLevel = function() {
   if (!this.level) { //Only operate when there's no active level
+    $(".instruction").remove();
     if (this.lastlevel) { //Go to next level if it exists
       console.log(window.Levels.length, this.lastlevel.id)
       if ((window.Levels.length-1)<=this.lastlevel.id) {
@@ -213,6 +238,7 @@ OculusLeapLift.prototype.initScene = function() {
 
 vr.load(function(err) {
   OLL = new OculusLeapLift();
+  $(instruction).appendTo(document.body);
   window.addEventListener('keypress', function(e){
   var keycode = e.keyCode;
     if (keycode==32) { //Spacebar

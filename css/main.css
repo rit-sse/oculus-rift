@@ -56,3 +56,50 @@ body {
   display: inline-block;
   text-align: center;
 }
+
+@-webkit-keyframes cycletext {
+  from {color: rgba(0,0,0,255);}
+  to {color: rgba(255,255,255,0);}
+}
+@keyframes cycletext {
+  from {color: rgba(0,0,0,255);}
+  to {color: rgba(255,255,255,0);}
+}
+.blink {
+  -webkit-animation-name: cycletext;
+          animation-name: cycletext;
+  -webkit-animation-duration: 1s;
+          animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+  -webkit-animation-timing-function: cubic-bezier(.42, 0, .58, 1);
+          animation-timing-function: cubic-bezier(.42, 0, .58, 1);
+  -webkit-animation-play-state: running;
+          animation-play-state: running;
+  -webkit-animation-delay: 0s;
+          animation-delay: 0s;
+  -webkit-animation-direction: alternate;
+          animation-direction: alternate;
+  -webkit-animation-fill-mode: forwards;
+          animation-fill-mode: forwards;
+}
+
+.centerleft {
+  position: fixed;
+  margin-top: 400px;
+  width: 640px;
+  margin-left: 0 auto;
+  margin-right: 0 auto;
+  text-align: center;
+  z-index: 10;
+}
+
+.centerright {
+  position: fixed;
+  margin-top: 400px;
+  width: 640px;
+  margin-left: 640px;
+  margin-right: 0 auto;
+  text-align: center;
+  z-index: 10;
+}
