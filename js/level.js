@@ -11,6 +11,7 @@
   };
 
   Level.prototype.start = function(context) {
+    context.score = 0;
     this.setupfunc(this, context);
   };
   
