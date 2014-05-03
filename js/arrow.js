@@ -1,6 +1,11 @@
 (function() {
   var Arrow = function(cb) {
     Damageable.call(this, "models/arrow.obj", Physijs.ConvexMesh, 20, 5, cb);
+    var self=this;
+    setTimeout(function() { //remove arrows automatically after some time
+      if (self)
+        self.remove();
+    },30000)
   };
   Arrow.prototype = Object.create( Damageable.prototype );
   

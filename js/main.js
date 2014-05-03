@@ -53,6 +53,7 @@ OculusLeapLift.prototype.render = function() {
   } else {
     $(".targetcount").text(0);
     $(".timer").text("00:00.00");
+    this.effect.render( this.scene, this.camera );
   }
   
   this.requestAnimationFrame();
@@ -233,6 +234,7 @@ OculusLeapLift.prototype.initScene = function() {
 
   Entity.setWorld(this.scene); //Set up the entity system to work with this environment
   
+  this.controller = new Leap.Controller({enableGestures: true});
   this.requestAnimationFrame();
 };
 
@@ -249,4 +251,21 @@ vr.load(function(err) {
       }
     }
   }, false);
+  
+  var holding = false;
+  Leap.loop(function(frame) {
+    if (frame.hands.length > 0) {
+      holding = true;
+    } else {
+      if (holding) {
+        holding = false;
+        if (OLL.level) {
+          OLL.shootBullet();
+        } else {
+          OLL.advanceLevel();
+        }
+      }
+    }
+  });
+  
 });

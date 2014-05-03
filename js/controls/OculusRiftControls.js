@@ -25,8 +25,6 @@ THREE.OculusRiftControls.prototype.update = function ( delta, vrstate ) {
     this.obj.quaternion = rot;
     this.obj.quaternion.multiply(this.quatoffset);
     
-        console.log(this.obj.quaternion);
-    
     this.obj.quaternion.normalize();
   } 
 };

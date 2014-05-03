@@ -8,7 +8,10 @@
         var oldd = ent.onDestroy;
         ent.onDestroy = function() {
           oldd();
-          ctx.score++;
+          ctx.score = ctx.score + 1;
+          if (ctx.score===8) {
+            ctx.endLevel();
+          }
         }
       }
   };
@@ -23,7 +26,7 @@
   
   pushLevelDef(new Level(
     [new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0)], //Stationary, a brief intoduction
-    10000,
+    200000, //Level duration in milliseconds
     function(ctx, game) {
       //Setup
       ctx.dist = 150;
@@ -37,7 +40,7 @@
         pos.applyQuaternion(qang);
         pos.multiplyScalar(ctx.dist);
         var dang = qang.multiply(rightang);
-        var t = new Target(makeHandler(pos, dang, ctx));
+        var t = new Target(makeHandler(pos, dang, game));
         ctx.targets.push(t);
       }
   

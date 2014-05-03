@@ -11,7 +11,7 @@ body {
 }
 .timer {
   position: fixed;
-  top: 50px;
+  top: 200px;
   z-index: 10;
 
  -webkit-transform: matrix(1, 0.2, 0, 1, 0, 0);
@@ -19,15 +19,15 @@ body {
          transform: matrix(1, 0.2, 0, 1, 0, 0);
 }
 .lefteye {
-  left: 50px;
+  left: 240px;
 }
 .righteye {
-  left: 690px;
+  right: 440px;
 }
 .tarleft {
   position: fixed;
-  top: 50px;
-  right: 140px;
+  top: 200px;
+  left: 440px;
    z-index: 10;
 
 
@@ -37,8 +37,8 @@ body {
 }
 .tarright {
   position: fixed;
-  top: 50px;
-  right: 880px;
+  top: 200px;
+  right: 290px;
    z-index: 10;
 
 
@@ -88,8 +88,7 @@ body {
   position: fixed;
   margin-top: 400px;
   width: 640px;
-  margin-left: 0 auto;
-  margin-right: 0 auto;
+  left: 50px;
   text-align: center;
   z-index: 10;
 }
@@ -97,9 +96,8 @@ body {
 .centerright {
   position: fixed;
   margin-top: 400px;
-  width: 640px;
-  margin-left: 640px;
-  margin-right: 0 auto;
+  width: 590px;
+  margin-left: 600px;
   text-align: center;
   z-index: 10;
 }
