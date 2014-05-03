@@ -63,7 +63,11 @@ OculusLeapLift.prototype.render = function() {
       this.arrow.setRotation(qu);
     }
 
-    $(".targetcount").text(this.score || 0);
+    var scorestr = (this.score || 0);
+    if (this.level && this.level.count) {
+      scorestr += '/'+this.level.count;
+    }
+    $(".targetcount").text(scorestr);
     var msrem = this.ttl-this.totaltime || 0;
     var remmin = Math.floor(msrem/60000);
     var remsec = (Math.floor(msrem/1000) - (remmin*60));
@@ -104,8 +108,8 @@ OculusLeapLift.prototype.endLevel = function() {
 
 var instruction = [
     "<div class=\"instruction\">",
-      "<h1 class=\"centerleft blink\">Spacebar to begin</h1>",
-      "<h1 class=\"centerright blink\">Spacebar to begin</h1>",  
+      "<h1 class=\"centerleft blink\">Press Button</h1>",
+      "<h1 class=\"centerright blink\">Press Button</h1>",  
     "</div>"
 ].join("\n");
 
