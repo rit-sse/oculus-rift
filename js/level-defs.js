@@ -1,6 +1,6 @@
 (function() {
   
-  var makeHandler = function(pos, qang, ctx) {
+  var makeHandler = function(pos, qang, ctx, level) {
     return function(ent) {
         ent.addToWorld();
         ent.setPos(pos.add(new THREE.Vector3(0,32,0)));
@@ -9,7 +9,7 @@
         ent.onDestroy = function() {
           oldd();
           ctx.score = ctx.score + 1;
-          if (ctx.score===8) {
+          if (ctx.score===level.count) {
             ctx.endLevel();
           }
         }
@@ -43,7 +43,7 @@
         pos.applyQuaternion(qang);
         pos.multiplyScalar(ctx.dist);
         var dang = qang.multiply(rightang);
-        var t = new Target(makeHandler(pos, dang, game));
+        var t = new Target(makeHandler(pos, dang, game, ctx));
         ctx.targets.push(t);
       }
   
@@ -73,7 +73,7 @@
         var rot = new THREE.Quaternion();
         rot.setFromAxisAngle(up, Math.PI/2);
         
-        var t = new Target(makeHandler(pos, rot, game));
+        var t = new Target(makeHandler(pos, rot, game, ctx));
         ctx.targets.push(t);
       }
     },
