@@ -38,7 +38,10 @@ OculusLeapLift.prototype.render = function() {
     if (this.totaltime >= this.ttl)
       this.totaltime = this.ttl;
 
-    var pos = this.interpolation(this.path, (Math.sin(this.totaltime/this.ttl)+1)/2);
+    var path = this.path;
+    if (this.level)
+      path = this.level.path;
+    var pos = this.interpolation(path, (this.totaltime/this.ttl));
     this.camera.position = pos;
     
     if (this.holding) {

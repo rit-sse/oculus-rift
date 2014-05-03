@@ -59,7 +59,7 @@
     }));
   
   pushLevelDef(new Level(
-    [new THREE.Vector3(0,10,-750), new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,750)], //A short jaunt forward
+    [new THREE.Vector3(0,10,-400), new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,400)], //A short jaunt forward
     60000,
     function(ctx, game) {
       ctx.dist = 175;
