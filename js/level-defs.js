@@ -59,11 +59,11 @@
     }));
   
   pushLevelDef(new Level(
-    [new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,500)], //A short jaunt forward
+    [new THREE.Vector3(0,10,-750), new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,750)], //A short jaunt forward
     60000,
     function(ctx, game) {
       ctx.dist = 175;
-      ctx.count = 12;
+      ctx.count = 8;
       ctx.targets = [];
       for (var i=0; i<ctx.count; i++) {
         var pos = new THREE.Vector3(150,0,0);
