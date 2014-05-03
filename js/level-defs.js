@@ -16,13 +16,16 @@
       }
   };
   var up = new THREE.Vector3(0,1,0);
+  var fwd = new THREE.Vector3(0,0,-1);
   var rightang = (new THREE.Quaternion()).setFromAxisAngle(up, -Math.PI/2);
+  var rightang2 = (new THREE.Quaternion()).setFromAxisAngle(fwd, -Math.PI/2);
   
   window.Levels = []
   var pushLevelDef = function(level) {
     level.id = window.Levels.length;
     window.Levels.push(level);
   };
+  
   
   pushLevelDef(new Level(
     [new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0),new THREE.Vector3(0,10,0)], //Stationary, a brief intoduction
@@ -57,12 +60,30 @@
   
   pushLevelDef(new Level(
     [new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,0), new THREE.Vector3(0,10,500)], //A short jaunt forward
-    20000,
+    60000,
     function(ctx, game) {
-      //Setup
+      ctx.dist = 175;
+      ctx.count = 12;
+      ctx.targets = [];
+      for (var i=0; i<ctx.count; i++) {
+        var pos = new THREE.Vector3(150,0,0);
+        pos.add(game.PointOn3DCurve(i/ctx.count, ctx.path[0], ctx.path[1], ctx.path[2]));
+        
+        var rot = new THREE.Quaternion();
+        rot.setFromAxisAngle(up, Math.PI/2);
+        
+        var t = new Target(makeHandler(pos, rot, game));
+        ctx.targets.push(t);
+      }
     },
     function(ctx, game) {
       //Teardown
+      for (var i=0;i<ctx.count; i++) {
+        if (ctx.targets[i]) {
+          ctx.targets[i].remove();
+          delete ctx.targets[i];
+        }
+      }
     }
   ));
 })();
