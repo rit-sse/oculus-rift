@@ -10,6 +10,7 @@
   Arrow.prototype = Object.create( Damageable.prototype );
   
   Arrow.prototype.launch = function(impulse) {
+    while (!this._physobj) {}
     this._physobj.applyCentralImpulse(impulse);
   };
   

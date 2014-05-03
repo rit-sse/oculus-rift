@@ -1,4 +1,6 @@
-
+/* global THREE, console, Physijs, Arrow, Level, Levels, vr, Entity, Leap, requestAnimationFrame, OLL */
+/* jshint browser: true */
+/* jshint jquery: true */
 Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = './ammo.js';
 
@@ -22,7 +24,7 @@ var OculusLeapLift = function() {
 var padn = function(str) {
   var str = "0"+str;
   return str.substr(str.length-2);
-}
+};
 OculusLeapLift.prototype.render = function() {
   this.scene.simulate(); // run physics
   
@@ -38,6 +40,25 @@ OculusLeapLift.prototype.render = function() {
 
     var pos = this.interpolation(this.path, (Math.sin(this.totaltime/this.ttl)+1)/2);
     this.camera.position = pos;
+    
+    if (this.holding) {
+      if (!this.arrow) {
+        this.arrow = new Arrow();
+      }
+      
+      var local = new THREE.Vector3(0,0,-1);
+      var world = local.applyMatrix4(this.camera.matrixWorld);
+      var dir = world.sub(this.camera.position).normalize();
+      
+      this.arrow.setPos(this.camera.position.clone().add(dir.multiplyScalar(2)));
+      var eul = new THREE.Euler();
+      eul.setFromQuaternion(this.camera.quaternion);
+      eul.y += Math.PI;
+      var qu = new THREE.Quaternion();
+      qu.setFromEuler(eul);
+      
+      this.arrow.setRotation(qu);
+    }
 
     $(".targetcount").text(this.score || 0);
     var msrem = this.ttl-this.totaltime || 0;
@@ -61,13 +82,12 @@ OculusLeapLift.prototype.render = function() {
 
 OculusLeapLift.prototype.startLevel = function(num) {
   var level = window.Levels[num];
-  console.log(num);
   this.path = level.path;
   this.ttl = level.duration;
   this.totaltime = 0;
   level.start(this);
   this.level = level;
-}
+};
 
 OculusLeapLift.prototype.endLevel = function() {
   this.level.end(this);
@@ -77,7 +97,7 @@ OculusLeapLift.prototype.endLevel = function() {
   delete this.level;
   
   $(instruction).appendTo(document.body);
-}
+};
 
 var instruction = [
     "<div class=\"instruction\">",
@@ -90,7 +110,6 @@ OculusLeapLift.prototype.advanceLevel = function() {
   if (!this.level) { //Only operate when there's no active level
     $(".instruction").remove();
     if (this.lastlevel) { //Go to next level if it exists
-      console.log(window.Levels.length, this.lastlevel.id)
       if ((window.Levels.length-1)<=this.lastlevel.id) {
         this.startLevel(0);
       } else { 
@@ -100,27 +119,29 @@ OculusLeapLift.prototype.advanceLevel = function() {
       this.startLevel(0);
     }
   }
-}
+};
 
 OculusLeapLift.prototype.PointOn3DCurve = function (dis,pt1,pt2,pt3) {
 	var out1 = Math.pow((1-dis),2)*pt1.x+2*(1-dis)*dis*pt2.x+Math.pow(dis,2)*pt3.x;
 	var out2 = Math.pow((1-dis),2)*pt1.y+2*(1-dis)*dis*pt2.y+Math.pow(dis,2)*pt3.y;
 	var out3 = Math.pow((1-dis),2)*pt1.z+2*(1-dis)*dis*pt2.z+Math.pow(dis,2)*pt3.z;
 	return new THREE.Vector3(out1,out2,out3);
-}
+};
 
 OculusLeapLift.prototype.interpolation = function(path, fraction) {
   return this.PointOn3DCurve(fraction, path[0], path[1], path[2]);
 };
 
-OculusLeapLift.prototype.shootBullet = function() {
+OculusLeapLift.prototype.shootBullet = function(normal) {
   
   var local = new THREE.Vector3(0,0,-1);
   var world = local.applyMatrix4(this.camera.matrixWorld);
   var dir = world.sub(this.camera.position).normalize();
 
+
   var scope = this;
-  var bullet = new Arrow(function() {
+  var bullet = null;
+  var sets = function() {
     bullet.setPos(scope.camera.position.clone().add(dir.multiplyScalar(2)));
     var eul = new THREE.Euler();
     eul.setFromQuaternion(scope.camera.quaternion);
@@ -129,7 +150,14 @@ OculusLeapLift.prototype.shootBullet = function() {
     qu.setFromEuler(eul);
     bullet.setRotation(qu);
     bullet.launch(dir.multiplyScalar(1000));
-  });
+  };
+  if (this.arrow) {
+    bullet = this.arrow;
+    delete this.arrow;
+    sets();
+  } else {
+    bullet = new Arrow(sets);
+  }
 };
 
 OculusLeapLift.prototype.requestAnimationFrame = function() {
@@ -252,20 +280,21 @@ vr.load(function(err) {
     }
   }, false);
   
-  var holding = false;
-  Leap.loop(function(frame) {
-    if (frame.hands.length > 0) {
-      holding = true;
-    } else {
-      if (holding) {
-        holding = false;
-        if (OLL.level) {
-          OLL.shootBullet();
-        } else {
-          OLL.advanceLevel();
-        }
+  OLL.holding = false;
+  OLL.leapcontroller = new Leap.Controller()
+    .use('handEntry')
+    .connect()
+    .on('handFound', function(hand) {
+      OLL.holding = hand;
+    })
+    .on('handLost', function(hand) {
+      OLL.holding = false;
+      if (OLL.level) {
+        OLL.shootBullet(hand.palmNormal);
+      } else {
+        OLL.advanceLevel();
       }
-    }
-  });
+    });
+    
   
 });
