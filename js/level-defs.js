@@ -63,10 +63,11 @@
     60000,
     function(ctx, game) {
       ctx.dist = 175;
-      ctx.count = 8;
+      ctx.count = 15;
       ctx.targets = [];
       for (var i=0; i<ctx.count; i++) {
-        var pos = new THREE.Vector3(150,0,0);
+        var inverter = i%2==0 ? 1 : -1;
+        var pos = new THREE.Vector3(inverter*150,0,0);
         pos.add(game.PointOn3DCurve(i/ctx.count, ctx.path[0], ctx.path[1], ctx.path[2]));
         
         var rot = new THREE.Quaternion();

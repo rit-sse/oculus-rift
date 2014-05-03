@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mycroft</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <img src="images/sse-logo.png" alt="Society of Software Engineers" class="navbar-right logo" />
+            <div class="navbar-header navbar-left">
+                <h1>Oculus</h1>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row" id="intro-row">
+                    <p class="lead">
+                        <img src="images/Oculus-VR-Logo-Bar-592x.jpg" class="img-responsive pull-left" width="320" alt="Oculus logo" />
+                        The Oculus Rift is a head-mounted display created by Oculus VR company.
+                    </p>
+                    <p>Virtual reality is a really cool concept, and the HMD puts us one step 
+                      closer to true virtual reality. We aquired one earlier in the year for use in
+                      our projects. We've had a huge number of ideas on how to use it - today it's
+                      our 'virtual archer'.
+                      </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-10">
+                        <h2 class="rapdev">Virtual Archer</h2>
+                        <p>Conceptually it's pretty simple, shoot arrows in a virtual world.</p>
+                        <p>The control scheme was the hardest to settle on. We've implemented LEAP motion controls,
+                            but we've found the fidelity of the controls was not high enough for repeated motions.
+                            Until we've integrated something else cool, we have a MakeyMakey hooked up to an arcade button -
+                            we're shooting it old school.</p>
+                    </div>  
+                  <div class="col-md-2">
+                        <img src="../models/targets.png" class="img-responsive" alt="Target" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Technology</h2>
+                        <p>The Virtual Archer works in the web browser! With a small browser plugin for the rift, everything else if pure HTML and Javascript, but we've pulled in quite a ton of open source code.</p>
+                        <div class="row tools">
+                            <div class="col-md-3" id="ruby-block">
+                                <h3>Bootstrap.js</h3>
+                                <p>A responsive UI framework for beautiful interfaces.</p>
+                            </div>
+                            <div class="col-md-3" id="ruby-block">
+                                <h3>THREE.js</h3>
+                                <p>A wrapper around the WebGL and Canvas renderers, making 3D in the browser simpler.</p>
+                            </div>
+                            <div class="col-md-3" id="ruby-block">
+                                <h3>Physi.js</h3>
+                                <p>A Threaded Physics engine, utilizing Ammo.js (a port of the Bullet physics engine)</p>
+                            </div>
+                            <div class="col-md-3" id="ruby-block">
+                                <h3>Entity.js</h3>
+                                <p>Our own wrapper around THREE.js and Physi.js to create a simple environment for spawning interactive parts</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-3" id="ruby-block">
+                            <h3><img class="img-responsive" src="images/jQuery.png" alt="jQuery Logo"></h3>
+                            <p>A library of javascript convinience functions and DOM manipulators</p>
+                          </div>
+                          <div class="col-md-3" id="ruby-block">
+                            <h3>vr.js</h3>
+                            <p>A wrapper around the oculus rift plugin that makes using the display simple.</p>
+                          </div>
+                          <div class="col-md-3">
+                            <h3><img class="img-responsive" src="images/leap.png" alt="LEAP Motion Logo"></h3>
+                            <p>An interface for LEAP motion controls</p>
+                          </div>
+                          <div class="col-md-3">
+                            <h3><img class="img-responsive" src="images/MM-BananaKeyLogo.png" alt="Makey Makey Logo"></h3>
+                            <p>The Makey Makey reconfigurable improvisional controller - functions as a plug and play keyboard, no code needed.</p>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</body>
+</html>
